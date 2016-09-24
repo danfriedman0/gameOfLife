@@ -7,6 +7,28 @@
 
 "use strict";
 
+function compareArrays(arr1, arr2) {
+	if (!(arr1 instanceof Array) || !(arr2 instanceof Array)) {
+		return false;
+	}
+	if (arr1.length !== arr2.length) {
+		return false;
+	}
+
+	for (var i = 0, len = arr1.length; i < len; i++) {
+		if (arr1[i] instanceof Array && arr2[i] instanceof Array) {
+			if (!compareArrays(arr1[i], arr2[i])) {
+				return false;
+			}
+		}
+		if (arr1[i] !== arr2[i]) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 var GameOfLife = function() {
 	this.canvas = document.getElementById("game-board");
 	this.ctx = this.canvas.getContext("2d");
@@ -16,27 +38,54 @@ var GameOfLife = function() {
 
 	this.numCells = 4096;
 	this.cellSize = 8;			// cells are squares
-	this.boardWidth = Math.sqrt(this.numCells);
+	this.boardWidth = 64;
+	this.boardHeight = 64;
+
 	this.board = new Array(this.numCells);
 	this.temp = new Array(this.numCells);
 
 	this.interval = null;
 	this.playing = false;
+	this.timestep = document.getElementById("timestep").value;
+	this.stepCount = document.getElementById("step-count");
+	this.goButton = document.getElementById("go");
 
 	this.init();
 }
 
 GameOfLife.prototype.addListeners = function() {
 	var me = this;
-	document.getElementById("go").addEventListener("click", function() {
-		if (me.playing) {
-			me.stop();
-			this.innerHTML = "go";
-		}
-		else {
+	me.goButton.addEventListener("click", function() {
+		if (me.playing)
+			me.stop()
+		else
 			me.start();
-			this.innerHTML = "stop";
-		}
+	});
+
+	document.getElementById("timestep").addEventListener("change", function() {
+		me.timestep = this.value;
+	});
+
+	document.getElementById("reset-step-count").addEventListener("click", function() {
+		me.stepCount.innerHTML = "0";
+	});
+
+	document.getElementById("randomize-board").addEventListener("click", function() {
+		me.fillBoard();
+		me.stepCount.innerHTML = "0";
+	});
+
+	document.getElementById("clear-board").addEventListener("click", function() {
+		me.fillBoard(0);
+		me.stepCount.innerHTML = "0";
+	});
+
+	me.canvas.addEventListener("click", function(e) {
+		var x = Math.floor((e.clientX - this.offsetLeft) / me.cellSize);
+		var y = Math.floor((e.clientY - this.offsetTop) / me.cellSize);
+		var i = x + me.boardWidth * y;
+		me.board[i] = (me.board[i] + 1) ;
+		me.drawCel(i, 1);
 	});
 }
 
@@ -85,23 +134,22 @@ GameOfLife.prototype.drawBoard = function() {
 		this.drawCel(i, board[i]);
 }
 
-GameOfLife.prototype.fillBoard = function() {
+GameOfLife.prototype.fillBoard = function(val) {
 	var board = this.board;
-	for (var i = 0; i < board.length; i++) {
-		board[i] = Math.round(Math.random());
-	}
-
-	this.temp = board;
+	for (var i = 0; i < board.length; i++)
+		board[i] = val === 0 ? 0 : Math.round(Math.random());
+	this.drawBoard();
 }
 
 GameOfLife.prototype.isEdge = function(i) {
-	var boardWidth = this.boardWidth;
+	var boardWidth = this.boardWidth,
+		boardHeight = this.boardHeight;
 
 	return {
 		right: i % boardWidth === boardWidth - 1,
 		left: i % boardWidth === 0,
 		top: i < boardWidth,
-		bottom: i >= boardWidth * (boardWidth - 1)
+		bottom: i >= boardWidth * (boardHeight - 1)
 	};
 }
 
@@ -132,9 +180,17 @@ GameOfLife.prototype.countNeighbors = function(i) {
 	return n;
 }
 
+GameOfLife.prototype.incrementStepCount = function() {
+	this.stepCount.innerHTML = parseInt(this.stepCount.innerHTML) + 1;
+}
+
 GameOfLife.prototype.step = function() {
-	var temp = this.temp,
+	var board = this.board,
+		temp = this.temp,
+		cellCount = 0,
 		n;
+
+	temp = board.slice();
 
 	for (var i = 0; i < temp.length; i++) {
 		n = this.countNeighbors(i);
@@ -144,10 +200,17 @@ GameOfLife.prototype.step = function() {
 			temp[i] = 1;
 		else if (n > 3)
 			temp[i] = 0;
+		cellCount += temp[i];
 	}
 
-	this.board = temp;
-	this.drawBoard();
+	if (cellCount === 0) {
+		this.stop();
+	}
+	else {
+		this.board = temp.slice();
+		this.drawBoard();
+		this.incrementStepCount();		
+	}
 }
 
 GameOfLife.prototype.start = function() {
@@ -155,21 +218,22 @@ GameOfLife.prototype.start = function() {
 
 	this.interval = window.setInterval(function() {
 		me.step();
-	}, 500);
+	}, 1000/this.timestep);
 
 	this.playing = true;
+	this.goButton.innerHTML = "stop";
 }
 
 GameOfLife.prototype.stop = function() {
 	window.clearInterval(this.interval);
 	this.playing = false;
+	this.goButton.innerHTML = "go";
 }
 
 GameOfLife.prototype.init = function() {
 	this.drawGrid();
-	this.fillBoard();
-	this.drawBoard();
 	this.addListeners();
+	this.fillBoard(0);
 }
 
 var game = new GameOfLife();
