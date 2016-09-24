@@ -1,0 +1,9 @@
+body {
+	font-family: "Mada", "Arial", "Helvetica", sans-serif;
+	text-align: center;
+}
+
+#game-board {
+	border-right: 1px solid #555;
+	border-bottom: 1px solid #555;
+}
