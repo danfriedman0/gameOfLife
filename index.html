@@ -9,10 +9,31 @@
 <body>
 	<h1>Conway's Game of Life</h1>
 
-	<canvas id="game-board" width="512" height="512">You have to use a modern browser to get this to work</canvas>
+	<div id="board-wrapper">
 
-	<div id="buttons">
-		<button id="go">go</button>
+		<canvas id="game-board" width="512" height="512">You have to use a modern browser to get this to work</canvas>
+
+		<div class="button-row flex-justify">
+			<div class="flex-margin">
+				<button id="randomize-board">random configuration</button>
+				<button id="clear-board">clear board</button>
+			</div>
+			<button id="go">go</button>
+			<div>
+				<label for="timestep" class="small-text">steps/second:</label>
+				<input id="timestep" type="text" size="4" value="12">
+			</div>
+		</div>
+
+		<div class="button-row flex-justify">
+			<div></div>
+			<div class="small-text flex-justify  flex-margin">
+				<label for="step-count">step: </label>
+				<div id="step-count">0</div>
+				<button id="reset-step-count">reset</button>
+			</div>
+		</div>
+
 	</div>
 
 	<script src="gameoflife.js"></script>

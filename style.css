@@ -3,7 +3,34 @@ body {
 	text-align: center;
 }
 
+#board-wrapper {
+	display: inline-block;
+}
+
 #game-board {
 	border-right: 1px solid #555;
 	border-bottom: 1px solid #555;
+}
+
+.flex-justify {
+	display: -webkit-flex;
+	display: flex;
+	justify-content: space-between;
+	-webkit-justify-content: space-between;
+}
+
+.flex-margin > * {
+	margin-right: 10px;
+}
+
+	.flex-margin:last-child {
+		margin-right: 0;
+	}
+
+.small-text {
+	font-size: .8em;
+}
+
+.button-row {
+	margin-bottom: 5px;
 }
