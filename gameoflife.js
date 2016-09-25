@@ -42,8 +42,8 @@ var GameOfLife = function() {
 	this.boardWidth = this.boardHeight = 64;
 
 	if (window.screen.width <= 425) {
-		this.cellSize = 24;
-		this.boardWidth = this.boardHeight = 12;
+		this.cellSize = 16;
+		this.boardWidth = this.boardHeight = 20;
 	}
 
 	this.numCells = this.boardWidth * this.boardHeight;
@@ -155,7 +155,7 @@ GameOfLife.prototype.clickCel = function(x, y) {
 	var me = this;
 	var i = x + me.boardWidth * y;
 
-	me.board[i] = !me.board[i];
+	me.board[i] = (!me.board[i] || me.mouseDown);
 	me.drawCel(i, me.board[i] || me.mouseDown);
 }
 
