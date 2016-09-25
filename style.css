@@ -11,6 +11,7 @@ body {
 	border-right: 1px solid #555;
 	border-bottom: 1px solid #555;
 	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
 }
 
 .flex-justify {

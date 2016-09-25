@@ -29,17 +29,24 @@ function compareArrays(arr1, arr2) {
 	return true;
 }
 
+/************************************************************************************************************/
+/** GAME OF LIFE ********************************************************************************************/
+/************************************************************************************************************/
+
+
 var GameOfLife = function() {
-	this.canvas = document.getElementById("game-board");
-	this.ctx = this.canvas.getContext("2d");
+	this.canvas = null;
+	this.ctx = null;
 
-	this.ctx.strokeStyle = "#444";
-	this.ctx.fillStyle = "red";
-
-	this.numCells = 4096;
 	this.cellSize = 8;			// cells are squares
-	this.boardWidth = 64;
-	this.boardHeight = 64;
+	this.boardWidth = this.boardHeight = 64;
+
+	if (window.screen.width <= 425) {
+		this.cellSize = 24;
+		this.boardWidth = this.boardHeight = 12;
+	}
+
+	this.numCells = this.boardWidth * this.boardHeight;
 
 	this.board = new Array(this.numCells);
 	this.temp = new Array(this.numCells);
@@ -53,7 +60,14 @@ var GameOfLife = function() {
 	this.mouseDown = false;
 
 	this.init();
+
+	console.log(window.screen.width);
 }
+
+/************************************************************************************************************/
+/** UI ******************************************************************************************************/
+/************************************************************************************************************/
+
 
 GameOfLife.prototype.addListeners = function() {
 	var me = this;
@@ -103,30 +117,37 @@ GameOfLife.prototype.addListeners = function() {
 			me.clickCel(x, y);
 		}
 	});
-}
 
-GameOfLife.prototype.drawGrid = function() {
-	var width = this.canvas.width,
-		height = this.canvas.height,
-		ctx = this.ctx,
-		cellSize = this.cellSize,
-		row, col;
+	// touch support for mobile
+	// (based on https://bencentra.com/code/2014/12/05/html5-canvas-touch-events.html)
+	me.canvas.addEventListener("touchstart", function(e) {
+		e.preventDefault();
+		var touch = e.touches[0];
+		var click = new MouseEvent("click", {
+			clientX: touch.clientX,
+			clientY: touch.clientY
+		});
+		var mouseDown = new MouseEvent("mousedown", {});
+		me.canvas.dispatchEvent(click);
+		me.canvas.dispatchEvent(mouseDown);
 
-	for (col = .5; col <= width; col += cellSize) {
-		ctx.beginPath();
-		ctx.moveTo(col, 0);
-		ctx.lineTo(col, height);
-		ctx.closePath();
-		ctx.stroke();
-	}
+	});
 
-	for (row = .5; row <= height; row += cellSize) {
-		ctx.beginPath();
-		ctx.moveTo(0, row);
-		ctx.lineTo(width, row);
-		ctx.closePath();
-		ctx.stroke();
-	}
+	me.canvas.addEventListener("touchend", function(e) {
+		e.preventDefault();
+		var mouseUp = new MouseEvent("mouseup", {});
+		me.canvas.dispatchEvent(mouseUp);
+	});
+
+	me.canvas.addEventListener("touchmove", function(e) {
+		e.preventDefault();
+		var touch = e.touches[0];
+		var mouseMove = new MouseEvent("mousemove", {
+			clientX: touch.clientX,
+			clientY: touch.clientY
+		});
+		me.canvas.dispatchEvent(mouseMove);
+	});
 }
 
 GameOfLife.prototype.clickCel = function(x, y) {
@@ -137,33 +158,10 @@ GameOfLife.prototype.clickCel = function(x, y) {
 	me.drawCel(i, me.board[i] || me.mouseDown);
 }
 
-GameOfLife.prototype.drawCel = function(cell, isAlive) {
-	var boardWidth = this.boardWidth,
-		cellSize = this.cellSize,
-		ctx = this.ctx;
+/************************************************************************************************************/
+/** step ****************************************************************************************************/
+/************************************************************************************************************/
 
-	var x = (cell % boardWidth) * cellSize + 1;
-	var y = Math.floor(cell / boardWidth) * cellSize + 1;
-
-	if (isAlive)
-		ctx.fillRect(x, y, cellSize-1, cellSize-1);
-	else
-		ctx.clearRect(x, y, cellSize-1, cellSize-1);
-}
-
-GameOfLife.prototype.drawBoard = function() {
-	var board = this.board;
-
-	for (var i = 0; i < board.length; i++)
-		this.drawCel(i, board[i]);
-}
-
-GameOfLife.prototype.fillBoard = function(val) {
-	var board = this.board;
-	for (var i = 0; i < board.length; i++)
-		board[i] = val === false ? false : Boolean(Math.round(Math.random()));
-	this.drawBoard();
-}
 
 GameOfLife.prototype.isEdge = function(i) {
 	var boardWidth = this.boardWidth,
@@ -227,13 +225,13 @@ GameOfLife.prototype.step = function() {
 		cellCount += temp[i];
 	}
 
+	if (cellCount === 0 || compareArrays(this.board, temp))
+		this.stop();
+	else
+		this.incrementStepCount();
+
 	this.board = temp.slice();
 	this.drawBoard();
-
-	if (cellCount === 0)
-		this.stop();
-	else 
-		this.incrementStepCount();
 }
 
 GameOfLife.prototype.start = function() {
@@ -253,7 +251,86 @@ GameOfLife.prototype.stop = function() {
 	this.goButton.innerHTML = "go";
 }
 
+/************************************************************************************************************/
+/** draw board **********************************************************************************************/
+/************************************************************************************************************/
+
+
+GameOfLife.prototype.drawCel = function(cell, isAlive) {
+	var boardWidth = this.boardWidth,
+		cellSize = this.cellSize,
+		ctx = this.ctx;
+
+	var x = (cell % boardWidth) * cellSize + 1;
+	var y = Math.floor(cell / boardWidth) * cellSize + 1;
+
+	if (isAlive)
+		ctx.fillRect(x, y, cellSize-1, cellSize-1);
+	else
+		ctx.clearRect(x, y, cellSize-1, cellSize-1);
+}
+
+GameOfLife.prototype.drawBoard = function() {
+	var board = this.board;
+
+	for (var i = 0; i < board.length; i++)
+		this.drawCel(i, board[i]);
+}
+
+/************************************************************************************************************/
+/** initialize **********************************************************************************************/
+/************************************************************************************************************/
+
+GameOfLife.prototype.fillBoard = function(val) {
+	var board = this.board;
+	for (var i = 0; i < board.length; i++)
+		board[i] = val === false ? false : Boolean(Math.round(Math.random()));
+	this.drawBoard();
+}
+
+GameOfLife.prototype.drawGrid = function() {
+	var width = this.canvas.width,
+		height = this.canvas.height,
+		ctx = this.ctx,
+		cellSize = this.cellSize,
+		row, col;
+
+	for (col = .5; col <= width; col += cellSize) {
+		ctx.beginPath();
+		ctx.moveTo(col, 0);
+		ctx.lineTo(col, height);
+		ctx.closePath();
+		ctx.stroke();
+	}
+
+	for (row = .5; row <= height; row += cellSize) {
+		ctx.beginPath();
+		ctx.moveTo(0, row);
+		ctx.lineTo(width, row);
+		ctx.closePath();
+		ctx.stroke();
+	}
+}
+
+GameOfLife.prototype.buildCanvas = function() {
+	var boardWrapper = document.getElementById("board-wrapper");
+	var canvas = document.createElement("canvas");
+	
+	canvas.setAttribute("width", this.boardWidth * this.cellSize);
+	canvas.setAttribute("height", this.boardHeight * this.cellSize);
+	canvas.id = "game-board";
+	canvas.innerHTML = "This will only work in a modern browser";
+	
+	boardWrapper.insertBefore(canvas, boardWrapper.firstChild);
+	
+	this.canvas = canvas;
+	this.ctx = canvas.getContext("2d");
+	this.ctx.strokeStyle = "#555";
+	this.ctx.fillStyle = "red";
+}
+
 GameOfLife.prototype.init = function() {
+	this.buildCanvas();
 	this.drawGrid();
 	this.addListeners();
 	this.fillBoard(false);
