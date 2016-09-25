@@ -78,7 +78,9 @@ GameOfLife.prototype.addListeners = function() {
 	});
 
 	document.getElementById("timestep").addEventListener("change", function() {
-		me.timestep = this.value;
+		me.timestep = this.value <= 124 ? this.value : 124;
+		if (this.value > 124)
+			this.value = 124;
 	});
 
 	document.getElementById("reset-step-count").addEventListener("click", function() {
