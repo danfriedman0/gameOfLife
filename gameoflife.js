@@ -50,6 +50,8 @@ var GameOfLife = function() {
 	this.stepCount = document.getElementById("step-count");
 	this.goButton = document.getElementById("go");
 
+	this.mouseDown = false;
+
 	this.init();
 }
 
@@ -76,16 +78,30 @@ GameOfLife.prototype.addListeners = function() {
 	});
 
 	document.getElementById("clear-board").addEventListener("click", function() {
-		me.fillBoard(0);
+		me.fillBoard(false);
 		me.stepCount.innerHTML = "0";
 	});
 
 	me.canvas.addEventListener("click", function(e) {
 		var x = Math.floor((e.clientX - this.offsetLeft) / me.cellSize);
 		var y = Math.floor((e.clientY - this.offsetTop) / me.cellSize);
-		var i = x + me.boardWidth * y;
-		me.board[i] = (me.board[i] + 1) ;
-		me.drawCel(i, 1);
+		me.clickCel(x, y);
+	});
+
+	me.canvas.addEventListener("mousedown", function() {
+		me.mouseDown = true;
+	});
+
+	me.canvas.addEventListener("mouseup", function() {
+		me.mouseDown = false;
+	})
+
+	me.canvas.addEventListener("mousemove", function(e) {
+		if (me.mouseDown) {
+			var x = Math.floor((e.clientX - this.offsetLeft) / me.cellSize);
+			var y = Math.floor((e.clientY - this.offsetTop) / me.cellSize);
+			me.clickCel(x, y);
+		}
 	});
 }
 
@@ -113,6 +129,14 @@ GameOfLife.prototype.drawGrid = function() {
 	}
 }
 
+GameOfLife.prototype.clickCel = function(x, y) {
+	var me = this;
+	var i = x + me.boardWidth * y;
+
+	me.board[i] = !me.board[i];
+	me.drawCel(i, me.board[i] || me.mouseDown);
+}
+
 GameOfLife.prototype.drawCel = function(cell, isAlive) {
 	var boardWidth = this.boardWidth,
 		cellSize = this.cellSize,
@@ -137,7 +161,7 @@ GameOfLife.prototype.drawBoard = function() {
 GameOfLife.prototype.fillBoard = function(val) {
 	var board = this.board;
 	for (var i = 0; i < board.length; i++)
-		board[i] = val === 0 ? 0 : Math.round(Math.random());
+		board[i] = val === false ? false : Boolean(Math.round(Math.random()));
 	this.drawBoard();
 }
 
@@ -195,22 +219,21 @@ GameOfLife.prototype.step = function() {
 	for (var i = 0; i < temp.length; i++) {
 		n = this.countNeighbors(i);
 		if (n < 2)
-			temp[i] = 0;
+			temp[i] = false;
 		else if (n === 3)
-			temp[i] = 1;
+			temp[i] = true;
 		else if (n > 3)
-			temp[i] = 0;
+			temp[i] = false;
 		cellCount += temp[i];
 	}
 
-	if (cellCount === 0) {
+	this.board = temp.slice();
+	this.drawBoard();
+
+	if (cellCount === 0)
 		this.stop();
-	}
-	else {
-		this.board = temp.slice();
-		this.drawBoard();
-		this.incrementStepCount();		
-	}
+	else 
+		this.incrementStepCount();
 }
 
 GameOfLife.prototype.start = function() {
@@ -233,7 +256,7 @@ GameOfLife.prototype.stop = function() {
 GameOfLife.prototype.init = function() {
 	this.drawGrid();
 	this.addListeners();
-	this.fillBoard(0);
+	this.fillBoard(false);
 }
 
 var game = new GameOfLife();
