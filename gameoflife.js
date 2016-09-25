@@ -83,7 +83,7 @@ GameOfLife.prototype.addListeners = function() {
 	});
 
 	document.getElementById("reset-step-count").addEventListener("click", function() {
-		me.stepCount.innerHTML = "0";
+		me.stepCount.value = "0";
 	});
 
 	document.getElementById("randomize-board").addEventListener("click", function() {
@@ -203,7 +203,7 @@ GameOfLife.prototype.countNeighbors = function(i) {
 }
 
 GameOfLife.prototype.incrementStepCount = function() {
-	this.stepCount.innerHTML = parseInt(this.stepCount.innerHTML) + 1;
+	this.stepCount.value = parseInt(this.stepCount.value) + 1;
 }
 
 GameOfLife.prototype.step = function() {

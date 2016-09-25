@@ -11,26 +11,30 @@
 
 	<div id="board-wrapper">
 
-<!-- 		<canvas id="game-board" width="512" height="512">You have to use a modern browser to get this to work</canvas>
- -->
 		<div class="button-row flex-justify">
-			<div class="flex-margin">
+			<div class="button-group left">
 				<button id="randomize-board">random configuration</button>
 				<button id="clear-board">clear board</button>
 			</div>
-			<button id="go">go</button>
-			<div>
-				<label for="timestep" class="small-text">steps/second:</label>
-				<input id="timestep" type="text" size="4" value="12">
-			</div>
-		</div>
 
-		<div class="button-row flex-justify">
-			<div></div>
-			<div class="small-text flex-justify  flex-margin">
-				<label for="step-count">step: </label>
-				<div id="step-count">0</div>
+			<div class="button-group">
+				<button id="go">go</button>
+			</div>
+
+
+			<div class="button-group right">
+				
+				<div class="small-text input-group">
+					<label for="timestep" id="timestep-label">steps/second:</label>
+					<input id="timestep" type="text" size="2" value="12">
+				</div>
+				
+				<div class="small-text input-group">
+					<label for="step-count">step: </label>
+					<input id="step-count" type="text" size="4" value="0" disabled>
+				</div>
 				<button id="reset-step-count">reset</button>
+
 			</div>
 		</div>
 

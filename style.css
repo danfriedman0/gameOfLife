@@ -14,20 +14,20 @@ body {
 	-webkit-tap-highlight-color: transparent;
 }
 
-.flex-justify {
+.flex-justify,
+.flex-margin {
 	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-wrap: wrap;
+	flex-wrap: wrap;
+}
+
+.flex-justify {
 	justify-content: space-between;
 	-webkit-justify-content: space-between;
+	align-items: top;
+	-webkit-align-items: top;
 }
-
-.flex-margin > * {
-	margin-right: 10px;
-}
-
-	.flex-margin:last-child {
-		margin-right: 0;
-	}
 
 .small-text {
 	font-size: .8em;
@@ -36,3 +36,38 @@ body {
 .button-row {
 	margin-bottom: 5px;
 }
+
+.button-group {
+	width: 33%;
+}
+
+.button-group > * {
+	margin-bottom: 5px;
+}
+
+.left {
+	text-align: left;
+}
+
+.right {
+	text-align: right;
+}
+
+button {
+    border: 1px solid rgba(0, 0, 0, .2);
+    background-color: #fff;
+    border-radius: 5px;
+}
+
+button:focus {
+    outline-offset: -2px;
+}
+
+.input-group {
+	font-size
+}
+
+
+
+
+
