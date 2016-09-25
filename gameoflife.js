@@ -43,7 +43,7 @@ var GameOfLife = function() {
 
 	if (window.screen.width <= 425) {
 		this.cellSize = 16;
-		this.boardWidth = this.boardHeight = 16;
+		this.boardWidth = this.boardHeight = 18;
 	}
 
 	this.numCells = this.boardWidth * this.boardHeight;
