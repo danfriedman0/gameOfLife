@@ -98,7 +98,8 @@ GameOfLife.prototype.addListeners = function() {
 
 	me.canvas.addEventListener("click", function(e) {
 		var x = Math.floor((e.clientX - this.offsetLeft) / me.cellSize);
-		var y = Math.floor((e.clientY - this.offsetTop) / me.cellSize);
+		var y = Math.floor((e.clientY - this.offsetTop + window.pageYOffset) / me.cellSize);
+
 		me.clickCel(x, y);
 	});
 
@@ -113,7 +114,7 @@ GameOfLife.prototype.addListeners = function() {
 	me.canvas.addEventListener("mousemove", function(e) {
 		if (me.mouseDown) {
 			var x = Math.floor((e.clientX - this.offsetLeft) / me.cellSize);
-			var y = Math.floor((e.clientY - this.offsetTop) / me.cellSize);
+			var y = Math.floor((e.clientY - this.offsetTop + window.pageYOffset) / me.cellSize);
 			me.clickCel(x, y);
 		}
 	});
