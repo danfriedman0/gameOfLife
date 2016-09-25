@@ -58,10 +58,9 @@ var GameOfLife = function() {
 	this.goButton = document.getElementById("go");
 
 	this.mouseDown = false;
+	this.dragging = false;
 
 	this.init();
-
-	console.log(window.screen.width);
 }
 
 /************************************************************************************************************/
@@ -96,23 +95,30 @@ GameOfLife.prototype.addListeners = function() {
 		me.stepCount.innerHTML = "0";
 	});
 
-	me.canvas.addEventListener("click", function(e) {
-		var x = Math.floor((e.clientX - this.offsetLeft) / me.cellSize);
-		var y = Math.floor((e.clientY - this.offsetTop + window.pageYOffset) / me.cellSize);
+	// me.canvas.addEventListener("click", function(e) {
+	// 	var x = Math.floor((e.clientX - this.offsetLeft) / me.cellSize);
+	// 	var y = Math.floor((e.clientY - this.offsetTop + window.pageYOffset) / me.cellSize);
 
-		me.clickCel(x, y);
-	});
+	// 	me.clickCel(x, y);
+	// });
 
 	me.canvas.addEventListener("mousedown", function() {
 		me.mouseDown = true;
 	});
 
-	me.canvas.addEventListener("mouseup", function() {
+	me.canvas.addEventListener("mouseup", function(e) {
 		me.mouseDown = false;
+		if (!me.dragging) {
+			var x = Math.floor((e.clientX - this.offsetLeft) / me.cellSize);
+			var y = Math.floor((e.clientY - this.offsetTop + window.pageYOffset) / me.cellSize);
+			me.clickCel(x, y);
+		}
+		me.dragging = false;
 	})
 
 	me.canvas.addEventListener("mousemove", function(e) {
 		if (me.mouseDown) {
+			me.dragging = true;
 			var x = Math.floor((e.clientX - this.offsetLeft) / me.cellSize);
 			var y = Math.floor((e.clientY - this.offsetTop + window.pageYOffset) / me.cellSize);
 			me.clickCel(x, y);
