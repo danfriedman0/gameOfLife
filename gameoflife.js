@@ -89,12 +89,12 @@ GameOfLife.prototype.addListeners = function() {
 
 	document.getElementById("randomize-board").addEventListener("click", function() {
 		me.fillBoard();
-		me.stepCount.innerHTML = "0";
+		me.stepCount.value = "0";
 	});
 
 	document.getElementById("clear-board").addEventListener("click", function() {
 		me.fillBoard(false);
-		me.stepCount.innerHTML = "0";
+		me.stepCount.value = "0";
 	});
 
 	me.canvas.addEventListener("click", function(e) {
